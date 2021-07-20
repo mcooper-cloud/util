@@ -1,0 +1,85 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "EnvironmentName": {
+            "Type": "String",
+            "Description": "Environment level of the deployment pipeline",
+            "AllowedValues" : ["dev", "staging", "uat", "qa", "test", "prod", "mgmt"],
+            "Default": "dev"
+        },
+        "ProjectName": {
+            "Type": "String",
+            "Description": "Human readable project name",
+            "Default": "USER_INPUT_REQUIRED"
+        },
+        "SystemNumber": {
+            "Type": "String",
+            "Description": "Internal system number",
+            "Default": "USER_INPUT_REQUIRED"
+        },
+        "Domain": {
+            "Type": "String",
+            "Description": "Rt. 53 Hosted Zone Domain",
+            "Default": "USER_INPUT_REQUIRED"
+        }
+    },
+    "Metadata" : {
+        "AWS::CloudFormation::Interface" : {
+            "ParameterGroups" : [
+                {
+                    "Label" : { "default" : "Environment Settings" },
+                    "Parameters" : [ 
+                        "EnvironmentName",
+                        "ProjectName",
+                        "SystemNumber"
+                    ]
+                },
+                {
+                    "Label" : { "default":"Hosted Zone Settings" },
+                    "Parameters" : [ 
+                        "Domain"
+                    ]
+                }
+            ]
+        }
+    },
+    "Resources": {
+        "HostedZone": {
+            "Type": "AWS::Route53::HostedZone",
+            "Properties": {
+                "Name": { "Ref":"Domain" },
+                "HostedZoneConfig": {
+                    "Comment": {"Fn::Join" : [ " ", [ 
+                        { "Ref" : "ProjectName" },
+                        { "Ref" : "EnvironmentName" },
+                        "Hosted Zone"
+                    ]]}
+                },
+                "HostedZoneTags": [
+                    {
+                        "Key": "EnvironmentName",
+                        "Value": { "Ref":"EnvironmentName" }
+                    },
+                    {
+                        "Key": "ProjectName",
+                        "Value": { "Ref":"ProjectName" }
+                    },
+                    {
+                        "Key": "SystemNumber",
+                        "Value": { "Ref":"SystemNumber" }
+                    },
+                ]
+            }
+        }
+    },
+    "Outputs" : {
+        "HostedZoneID" : {
+            "Value" : { "Ref":"HostedZone" },
+            "Description" : "Rt. 53 Hosted Zone ID"
+        },
+        "HostedZoneNameServers" : {
+            "Value" : {"Fn::Join": [",", { "Fn::GetAtt" : [ "HostedZone", "NameServers" ] } ]},
+            "Description" : "Rt. 53 Hosted Zone Name Servers"
+        }
+    }
+}

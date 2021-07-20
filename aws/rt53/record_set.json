@@ -1,0 +1,92 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "EnvironmentName": {
+            "Type": "String",
+            "Description": "Environment level of the deployment pipeline",
+            "AllowedValues" : ["dev", "staging", "uat", "qa", "test", "prod", "mgmt"],
+            "Default": "dev"
+        },
+        "ProjectName": {
+            "Type": "String",
+            "Description": "Human readable project name",
+            "Default": "USER_INPUT_REQUIRED"
+        },
+        "SystemNumber": {
+            "Type": "String",
+            "Description": "Internal system number",
+            "Default": "USER_INPUT_REQUIRED"
+        },
+        "RecordType": {
+            "Type": "String",
+            "Description": "The type of record set",
+            "AllowedValues" : [
+                "A", "AAAA", "CAA", "CNAME", "DS", 
+                "MX", "NAPTR", "NS", "PTR", "SOA", 
+                "SPF", "SRV", "TXT"
+            ],
+            "Default": "NS"
+        },
+        "RecordComment": {
+            "Type": "String",
+            "Description": "Comment for the record set",
+            "Default": "USER_INPUT_REQUIRED"
+        },
+        "HostedZoneId": {
+            "Type": "String",
+            "Description": "Hosted zone ID to attach the record set",
+            "Default": "USER_INPUT_REQUIRED"
+        },
+        "RecordSubDomain": {
+            "Type": "String",
+            "Description": "Subdomain identified by the record set",
+            "Default": "USER_INPUT_REQUIRED"
+        },
+        "RecordTTL": {
+            "Type": "String",
+            "Description": "TTL the record set (in seconds)",
+            "Default": "600"
+        },
+        "ResourceRecords": {
+            "Type": "CommaDelimitedList",
+            "Description": "target values for the record set",
+            "Default": "USER_INPUT_REQUIRED"
+        }
+    },
+    "Metadata" : {
+        "AWS::CloudFormation::Interface" : {
+            "ParameterGroups" : [
+                {
+                    "Label" : { "default" : "Environment Settings" },
+                    "Parameters" : [ 
+                        "EnvironmentName",
+                        "ProjectName",
+                        "SystemNumber"
+                    ]
+                },
+                {
+                    "Label" : { "default":"Record Set Settings" },
+                    "Parameters" : [ 
+                        "RecordType","RecordComment",
+                        "HostedZoneId","RecordSubDomain",
+                        "RecordTTL","ResourceRecords"
+                    ]
+                }
+            ]
+        }
+    },
+    "Resources": {
+        "HostedZone": {
+            "Type" : "AWS::Route53::RecordSet",
+            "Properties" : {
+                "Type" : {"Ref" : "RecordType"},
+                "Comment" : {"Ref" : "RecordComment"},
+                "HostedZoneId" : {"Ref" : "HostedZoneId"},
+                "Name" : {"Ref" : "RecordSubDomain"},
+                "ResourceRecords" :{"Ref" : "ResourceRecords"},
+                "TTL" : {"Ref" : "RecordTTL"},
+            }
+        }
+    },
+    "Outputs" : {}
+}
