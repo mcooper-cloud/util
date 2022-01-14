@@ -4,8 +4,13 @@
 ###############################################################################
 ###############################################################################
 ##
-##  the purpose of this Lambda function is to 
-##  manage events from an Auth0 log stream
+##  the purpose of this function is to search users in Auth0
+##
+##  Example usage:
+##
+##      ./user_search.py --query 'app_metadata.foo:"bar"'
+##
+##      ./user_search.py --query 'app_metadata.foo:*'
 ##
 ###############################################################################
 ###############################################################################

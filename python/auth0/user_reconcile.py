@@ -4,8 +4,8 @@
 ###############################################################################
 ###############################################################################
 ##
-##  the purpose of this Lambda function is to 
-##  manage events from an Auth0 log stream
+##  the purpose of this function is to 
+##  find and replace values in exported Auth0 user data
 ##
 ###############################################################################
 ###############################################################################
@@ -217,11 +217,15 @@ if __name__ == '__main__':
 
                         d['app_metadata'][find_value] = None
                         d['app_metadata'][replace_value] = d['app_metadata'][find_value]
-                        d['app_metadata'].pop(find_value)
 
-                        print('NEW app_metadata: {}'.format(d['app_metadata']))
-
+                        ##
+                        ## update the user record in Auth0 before popping the value
+                        ## off of the app_metadata data structure to ensure that 
+                        ## Auth0 recieves a value of None for the field, thus deleting
+                        ## the value from the user's app_metadata
+                        ##
                         auth0_tenant.update_user(user_id=user_id, app_metadata=d['app_metadata'])
 
-
+                        d['app_metadata'].pop(find_value)
+                        print('NEW app_metadata: {}'.format(d['app_metadata']))
 
